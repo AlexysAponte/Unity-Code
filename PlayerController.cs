@@ -1,50 +1,40 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
     public float speed;
-    public Text countText;
-    public Text winText;
-
-    private Rigidbody rb;
-    private int count;
-
+    public float jumpForce;
+    private Rigidbody2D rb2d;
     void Start()
+    {
+        rb2d = GetComponent<Rigidbody2D>();
+    }
+
+    void Update()
+    {
+        if (Input.GetKey(KeyCode.Escape))
         {
-            rb = GetComponent<Rigidbody>();
-            count = 0;
-            SetCountText ();
-            winText.text = "";
+            Application.Quit();
         }
+    }
 
-    void FixedUpdate()
+    private void FixedUpdate()
+    {
+        float movehorizontal = Input.GetAxis("Horizontal");
+        Vector2 movement = new Vector2(movehorizontal, 0);
+        rb2d.AddForce(movement * speed);
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if(collision.collider.tag == "Ground")
         {
-            float moveHorizontal = Input.GetAxis("Horizontal");
-            float moveVertical = Input.GetAxis("Vertical");
-
-            Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
-
-            rb.AddForce(movement*speed);
-        }
-
-    void OnTriggerEnter(Collider other)
-        {
-             if (other.gameObject.CompareTag("Pick up"))
+            if(Input.GetKey(KeyCode.UpArrow))
             {
-                other.gameObject.SetActive(false);
-                count = count + 1;
-                SetCountText ();
+                rb2d.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
             }
         }
-    void SetCountText()
-        {
-            countText.text = "Count: " + count.ToString();
-            if (count >= 12)
-            {
-                winText.text = "You Win!";
-            }
-        }
-
+    }
 }
